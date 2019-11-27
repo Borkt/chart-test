@@ -54,6 +54,17 @@ const App = () => {
     setFilterOptions(result);
   }
 
+  const setFilterOptions = (data) => {
+    // console.log("setFilterOptions", data.length);
+    const datasources = data.map(d => d.Datasource);
+    const campaigns = data.map(d => d.Campaign);
+
+    const [uniqueCampaigns, uniqueDatasources] = createUniqueFilterArrays([campaigns, datasources]);
+
+    setCampaignFilterOptions(uniqueCampaigns);
+    setDatasourceFilterOptions(uniqueDatasources);
+  }
+
   return (
     <div className="App">
       <Sidebar />
