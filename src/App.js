@@ -84,6 +84,38 @@ const App = () => {
     console.log("set the filters for", filter);
   }
 
+  // Loop through the data and get a SUM of
+  // Clicks & Impressions collected by common Date
+  // Returns array of objects ordered by Date
+  const collectMetricsByDate = (data) => {
+    if (data.length === 0) {
+      return;
+    }
+
+    const dateArray = data.map(d => d.Date);
+    const uniqueDates = [ ...new Set(dateArray)];
+
+    const filteredMetrics = uniqueDates.map(date => {
+      const singleDayMetrics = data.filter(d => d.Date === date);
+      // The '+' operator is a quick way to convert string -> number
+      const Clicks = singleDayMetrics.reduce((a, b) => a + +b.Clicks, 0);
+      const Impressions = singleDayMetrics.reduce((a, b) => a + +b.Impressions, 0);
+
+      // https://stackoverflow.com/a/33299764
+      const dateParts = date.split(".");
+      const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+
+      return {
+        Clicks,
+        Date: dateObject,
+        Impressions,
+      };
+    }).filter(fm => (!isNaN(fm.Clicks)) || (!isNaN(fm.Impressions)));
+    // Potentially add sort by Date here if needed
+
+    setFilteredData(filteredMetrics);
+  }
+
   return (
     <div className="App">
       <Sidebar />
