@@ -118,9 +118,15 @@ const App = () => {
 
   return (
     <div className="App">
-      <Sidebar />
-
-      <ChartView />
+      <Sidebar
+        activeCampaignFilters={activeCampaignFilters}
+        activeDatasourceFilters={activeDatasourceFilters}
+        campaignFilterOptions={campaignFilterOptions}
+        datasourceFilterOptions={datasourceFilterOptions}
+        setCampaignFilter={setActiveCampaignFilters}
+        setDatasourceFilter={setActiveDatasourceFilters}
+      />
+      <ChartView data={filteredData} />
     </div>
   );
 }
