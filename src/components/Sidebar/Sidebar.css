@@ -1,6 +1,7 @@
 .Sidebar {
   align-items: center;
   background-color: #282c34;
+  flex: 1;
   color: #09d3ac;
   display: flex;
   flex-direction: column;
