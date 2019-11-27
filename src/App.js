@@ -65,6 +65,25 @@ const App = () => {
     setDatasourceFilterOptions(uniqueDatasources);
   }
 
+  // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
+  const createUniqueFilterArrays = (array = []) => array.map(filter => {
+      // https://dev.to/clairecodes/how-to-create-an-array-of-unique-values-in-javascript-using-sets-5dg6
+      return [ ...new Set(filter)]
+        .filter(Boolean)
+        .map(name => ({
+            active: true,
+            name,
+          }));
+    });
+
+  const setCampaignFilter = (filter) => {
+    console.log("set the filters for", filter);
+  }
+
+  const setDatasourceFilter = (filter) => {
+    console.log("set the filters for", filter);
+  }
+
   return (
     <div className="App">
       <Sidebar />
