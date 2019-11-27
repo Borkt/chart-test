@@ -1,10 +1,10 @@
 import React from 'react';
 import './ChartView.css';
 
-const ChartView = () => {
+export const ChartView = () => {
   return (
-    <div className="ChartView" />
+    <div className="ChartView">
+      Chartviewz
+    </div>
   );
 }
-
-export default ChartView;
