@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { TimeSeries } from "pondjs";
 import {
   ChartContainer,
@@ -12,21 +13,19 @@ import {
 
 import './ChartView.css';
 
-export const ChartView = ({data}) => {
+export const ChartView = ({ data }) => {
   if (data.length === 0) {
     return (
       <div className="ChartView">
-        Loading...
+        Data Loading or Unavailable...
       </div>
     );
   }
 
-  const points = data.map(d => [d.Date, d.Clicks, d.Impressions]);
-
   const series = new TimeSeries({
     name: "Values",
     columns: ["time", "clicks", "impressions"],
-    points,
+    points: data,
   });
 
   const chartStyler = styler([
@@ -46,13 +45,13 @@ export const ChartView = ({data}) => {
         timeRange={series.range()}
         title="Datasource (All)"
         titleStyle={{ fill: "#555", fontWeight: 500, fontSize: "24px" }}
-        width={1000}
+        width={900}
       >
         <ChartRow height="500">
             <YAxis
               id="axis1"
               label="Clicks"
-              max={50000}
+              max={series.max("clicks")}
               min={0}
               type="linear"
               width="100"
@@ -74,7 +73,7 @@ export const ChartView = ({data}) => {
             <YAxis
               id="axis2"
               label="Impressions"
-              max={5000000}
+              max={series.max("impressions")}
               min={0}
               type="linear"
               width="100"
@@ -94,3 +93,7 @@ export const ChartView = ({data}) => {
     </div>
   );
 }
+
+ChartView.propTypes = {
+  data: PropTypes.array.isRequired,
+};
