@@ -118,8 +118,8 @@ const App = () => {
       return [ ...new Set(filter)]
         .filter(Boolean)
         .map(name => ({
-            active: true,
-            name,
+            value: name,
+            label: name,
           }));
     });
 
