@@ -4,7 +4,7 @@ import { ChartView, Sidebar } from './components';
 
 import './App.css';
 
-const s3URL = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
+const csvURL = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
 
 const App = () => {
   const [mockData, setMockData] = useState([]);
@@ -19,9 +19,9 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await fetch(s3URL);
-        const toText = await result.text();
-        csvToJSON(toText);
+        const result = await fetch(csvURL);
+        const csvToText = await result.text();
+        csvToJSON(csvToText);
       } catch (e) {
         console.log("fetchData error:", e);
       }
