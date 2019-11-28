@@ -61,40 +61,56 @@ const App = () => {
     fetchData();
   }, []);
 
-  // Adapted from:  http://techslides.com/convert-csv-to-json-in-javascript
-  const csvToJSON = (csv) => {
-    const lines = csv.split("\n");
-    const headers = lines[0].split(",");
-
-    const result = lines.map((line, i) => {
-      if (i === 0) {
-        return null;
+  // This Effect runs when mockData, activeDatasourceFilters or activeCampaignFilters
+  // are updated. It is therefore kept separate from the 'onMount' Effect above
+  // which runs only once during component initialisation
+  useEffect(() => {
+    // Loop through data and get a SUM of Clicks & Impressions
+    // *collected by Common Date*
+    // Returns an array of arrays ordered by Date
+    const collectMetricsByDate = (data = mockData) => {
+      if (data.length === 0) {
+        return;
       }
 
-      const obj = {};
-      const currentline = lines[i].split(",");
-      headers.forEach((header, i) => obj[headers[i]] = currentline[i]);
-      return obj;
+      // The next two conditional blocks produce an 'AND' effect
+      // For simplicity I did not include more complex 'AND / OR' logic
+      if (activeDatasourceFilters.length > 0) {
+        const dataFilters = activeDatasourceFilters.map(f => f.value);
+        data = data.filter(d => dataFilters.includes(d.Datasource));
+      }
 
-    }).filter(r => (r !== null) && (r.Date.length > 0));
+      if (activeCampaignFilters.length > 0) {
+        const campaignFilters = activeCampaignFilters.map(f => f.value);
+        data = data.filter(d => campaignFilters.includes(d.Campaign));
+      }
 
-    // console.log("resultz", result);
+      const dateArray = data.map(d => d.Date);
+      const uniqueDates = [ ...new Set(dateArray)];
 
-    setMockData(result);
-    collectMetricsByDate(result);
-    setFilterOptions(result);
-  }
+      const filteredMetrics = uniqueDates.map(date => {
+        const singleDayMetrics = data.filter(d => d.Date === date);
 
-  const setFilterOptions = (data) => {
-    // console.log("setFilterOptions", data.length);
-    const datasources = data.map(d => d.Datasource);
-    const campaigns = data.map(d => d.Campaign);
+        // The '+' operator is a quick way to convert string -> number
+        const Clicks = singleDayMetrics.reduce((a, b) => a + +b.Clicks, 0);
+        const Impressions = singleDayMetrics.reduce((a, b) => a + +b.Impressions, 0);
 
-    const [uniqueCampaigns, uniqueDatasources] = createUniqueFilterArrays([campaigns, datasources]);
+        // https://stackoverflow.com/a/33299764
+        const dateParts = date.split(".");
+        const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
 
-    setCampaignFilterOptions(uniqueCampaigns);
-    setDatasourceFilterOptions(uniqueDatasources);
-  }
+        return [
+          dateObject,
+          Clicks,
+          Impressions,
+        ];
+      }) // Potentially add sort by Date here if needed
+
+      setFilteredData(filteredMetrics);
+    }
+
+    collectMetricsByDate();
+  }, [mockData, activeDatasourceFilters, activeCampaignFilters])
 
   // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
   const createUniqueFilterArrays = (array = []) => array.map(filter => {
