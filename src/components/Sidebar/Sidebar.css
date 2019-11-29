@@ -9,8 +9,14 @@
   height: 40vmin;
   justify-content: flex-start;
   min-height: 100vh;
-  text-align: center;
+  text-align: left;;
   padding: 20px 0px;
+}
+
+.Sidebar-title {
+  font-size: 16px;
+  color: #ccc;
+  width: 85%;
 }
 
 .Sidebar-react-select {

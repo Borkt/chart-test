@@ -15,6 +15,7 @@ export const Sidebar = ({
 
   return (
     <div className="Sidebar">
+      <h2 className="Sidebar-title">Datasource</h2>
       <Select
         className="Sidebar-react-select"
         classNamePrefix="Sidebar-react-select"
@@ -25,6 +26,7 @@ export const Sidebar = ({
         options={campaignFilterOptions}
       />
 
+      <h2 className="Sidebar-title">Campaign</h2>
       <Select
         className="Sidebar-react-select"
         classNamePrefix="Sidebar-react-select"

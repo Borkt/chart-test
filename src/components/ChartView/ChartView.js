@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TimeSeries } from "pondjs";
 import {
@@ -13,7 +13,38 @@ import {
 
 import './ChartView.css';
 
-export const ChartView = ({ data }) => {
+export const ChartView = ({
+  activeCampaignFilters,
+  activeDatasourceFilters,
+  data,
+}) => {
+  const [chartTitle, setChartTitle] = useState([]);
+
+  useEffect(() => {
+    const generateTitle = () => {
+      let campaignTitle = " and Metrics: ";
+      let datasourceTitle = "Datasource: "
+
+      if (activeCampaignFilters.length > 0) {
+        campaignTitle += activeCampaignFilters.map(f => f.value).join(", ");
+      } else {
+        campaignTitle += "All Campaigns";
+      }
+
+      if (activeDatasourceFilters.length > 0) {
+        datasourceTitle += activeDatasourceFilters.map(f => f.value).join(", ") + " ";
+      } else {
+        datasourceTitle += "All ";
+      }
+
+      // return datasourceTitle + " / " + campaignTitle;
+      setChartTitle(datasourceTitle + campaignTitle);
+    }
+
+    generateTitle();
+  }, [activeCampaignFilters, activeDatasourceFilters]);
+
+
   if (data.length === 0) {
     return (
       <div className="ChartView">
@@ -43,11 +74,11 @@ export const ChartView = ({ data }) => {
     <div className="ChartView">
       <ChartContainer
         timeRange={series.range()}
-        title="Datasource (All)"
+        title={chartTitle}
         titleStyle={{ fill: "#555", fontWeight: 500, fontSize: "24px" }}
         width={900}
       >
-        <ChartRow height="500">
+        <ChartRow height="400">
             <YAxis
               id="axis1"
               label="Clicks"
@@ -95,5 +126,7 @@ export const ChartView = ({ data }) => {
 }
 
 ChartView.propTypes = {
+  activeCampaignFilters: PropTypes.array.isRequired,
+  activeDatasourceFilters: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
 };

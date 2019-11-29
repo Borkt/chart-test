@@ -141,7 +141,10 @@ const App = () => {
         setCampaignFilter={setCampaignFilter}
         setDatasourceFilter={setDatasourceFilter}
       />
-      <ChartView data={filteredData} />
+      <ChartView
+        activeCampaignFilters={activeCampaignFilters}
+        activeDatasourceFilters={activeDatasourceFilters}
+        data={filteredData} />
     </div>
   );
 }
