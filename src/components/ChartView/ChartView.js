@@ -21,7 +21,7 @@ export const ChartView = ({
   const [chartTitle, setChartTitle] = useState([]);
 
   useEffect(() => {
-    const generateTitle = () => {
+    const generateChartTitle = () => {
       let campaignTitle = " and Metrics: ";
       let datasourceTitle = "Datasource: "
 
@@ -37,11 +37,10 @@ export const ChartView = ({
         datasourceTitle += "All ";
       }
 
-      // return datasourceTitle + " / " + campaignTitle;
       setChartTitle(datasourceTitle + campaignTitle);
     }
 
-    generateTitle();
+    generateChartTitle();
   }, [activeCampaignFilters, activeDatasourceFilters]);
 
 

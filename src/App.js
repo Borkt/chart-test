@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import _ from 'lodash';
 import { ChartView, Sidebar } from './components';
 
 import './App.css';
@@ -16,19 +15,23 @@ const App = () => {
   const [activeCampaignFilters, setActiveCampaignFilters] = useState([]);
   const [activeDatasourceFilters, setActiveDatasourceFilters] = useState([]);
 
+  // This Effect runs once when the component mounts. It fetches remote CSV data,
+  // converts it to an array and saves mockData and FilterOptions to local state
   useEffect(() => {
     const setFilterOptions = (data) => {
       const datasources = data.map(d => d.Datasource);
       const campaigns = data.map(d => d.Campaign);
 
-      const [uniqueCampaigns, uniqueDatasources] = createUniqueFilterArrays([campaigns, datasources]);
+      const uniqueCampaigns = createUniqueArrays(campaigns).map(convertToChartFormat);
+      const uniqueDatasources = createUniqueArrays(datasources).map(convertToChartFormat);
 
       setCampaignFilterOptions(uniqueCampaigns);
       setDatasourceFilterOptions(uniqueDatasources);
     }
 
-    // Adapted from:  http://techslides.com/convert-csv-to-json-in-javascript
-    const csvToJSON = (csv) => {
+    // Standard method for javascript CSV text to JSON conversion
+    // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
+    const csvTextToJSON = (csv) => {
       const lines = csv.split("\n");
       const headers = lines[0].split(",");
 
@@ -52,7 +55,7 @@ const App = () => {
       try {
         const result = await fetch(csvURL);
         const csvToText = await result.text();
-        csvToJSON(csvToText);
+        csvTextToJSON(csvToText);
       } catch (e) {
         console.log("fetchData error:", e);
       }
@@ -62,13 +65,13 @@ const App = () => {
   }, []);
 
   // This Effect runs when mockData, activeDatasourceFilters or activeCampaignFilters
-  // are updated. It is therefore kept separate from the 'onMount' Effect above
-  // which runs only once during component initialisation
+  // are updated. It is kept separate from the 'onMount' Effect above
   useEffect(() => {
     // Loop through data and get a SUM of Clicks & Impressions
-    // *collected by Common Date*
-    // Returns an array of arrays ordered by Date
-    const collectMetricsByDate = (data = mockData) => {
+    // *Collected and Ordered by Common Date*
+    // Returns an array of arrays with format required by
+    // 'react-timeseries-charts' TimeSeries class
+    const filterDataAndAggregateByDate = (data = mockData) => {
       if (data.length === 0) {
         return;
       }
@@ -86,7 +89,7 @@ const App = () => {
       }
 
       const dateArray = data.map(d => d.Date);
-      const uniqueDates = [ ...new Set(dateArray)];
+      const uniqueDates = createUniqueArrays(dateArray);
 
       const filteredMetrics = uniqueDates.map(date => {
         const singleDayMetrics = data.filter(d => d.Date === date);
@@ -95,6 +98,7 @@ const App = () => {
         const Clicks = singleDayMetrics.reduce((a, b) => a + +b.Clicks, 0);
         const Impressions = singleDayMetrics.reduce((a, b) => a + +b.Impressions, 0);
 
+        // Date reformating required for 'react-timeseries-charts'
         // https://stackoverflow.com/a/33299764
         const dateParts = date.split(".");
         const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
@@ -109,19 +113,14 @@ const App = () => {
       setFilteredData(filteredMetrics);
     }
 
-    collectMetricsByDate();
+    filterDataAndAggregateByDate();
   }, [mockData, activeDatasourceFilters, activeCampaignFilters])
 
   // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
-  const createUniqueFilterArrays = (array = []) => array.map(filter => {
-      // https://dev.to/clairecodes/how-to-create-an-array-of-unique-values-in-javascript-using-sets-5dg6
-      return [ ...new Set(filter)]
-        .filter(Boolean)
-        .map(name => ({
-            value: name,
-            label: name,
-          }));
-    });
+  const createUniqueArrays = (array) => [ ...new Set(array)].filter(Boolean)
+
+  // Outputs data format required for 'react-timeseries-charts'
+  const convertToChartFormat = (label) => ({ label, value: label })
 
   const setCampaignFilter = (filter) => {
     setActiveCampaignFilters(filter || []);
