@@ -22,14 +22,14 @@ const App = () => {
       const datasources = data.map(d => d.Datasource);
       const campaigns = data.map(d => d.Campaign);
 
-      const uniqueCampaigns = createUniqueArrays(campaigns).map(convertToChartFormat);
-      const uniqueDatasources = createUniqueArrays(datasources).map(convertToChartFormat);
+      const uniqueCampaigns = createUniqueArray(campaigns).map(convertToChartFormat);
+      const uniqueDatasources = createUniqueArray(datasources).map(convertToChartFormat);
 
       setCampaignFilterOptions(uniqueCampaigns);
       setDatasourceFilterOptions(uniqueDatasources);
     }
 
-    // Standard method for javascript CSV text to JSON conversion
+    // Standard method for CSV text to JSON conversion in javascript
     // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
     const csvTextToJSON = (csv) => {
       const lines = csv.split("\n");
@@ -76,8 +76,9 @@ const App = () => {
         return;
       }
 
-      // The next two conditional blocks produce an 'AND' effect
-      // For simplicity I did not include more complex 'AND / OR' logic
+      // Filter the data by active Datasource and Campaign
+      // The next lines produce an 'AND' effect. For simplicity I did not
+      // include more complex 'AND / OR' logic
       if (activeDatasourceFilters.length > 0) {
         const dataFilters = activeDatasourceFilters.map(f => f.value);
         data = data.filter(d => dataFilters.includes(d.Datasource));
@@ -89,8 +90,9 @@ const App = () => {
       }
 
       const dateArray = data.map(d => d.Date);
-      const uniqueDates = createUniqueArrays(dateArray);
+      const uniqueDates = createUniqueArray(dateArray);
 
+      // Aggregate the data by common Date and return in necessary format
       const filteredMetrics = uniqueDates.map(date => {
         const singleDayMetrics = data.filter(d => d.Date === date);
 
@@ -103,11 +105,7 @@ const App = () => {
         const dateParts = date.split(".");
         const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
 
-        return [
-          dateObject,
-          Clicks,
-          Impressions,
-        ];
+        return [dateObject, Clicks, Impressions];
       }) // Potentially add sort by Date here if needed
 
       setFilteredData(filteredMetrics);
@@ -117,7 +115,7 @@ const App = () => {
   }, [mockData, activeDatasourceFilters, activeCampaignFilters])
 
   // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
-  const createUniqueArrays = (array) => [ ...new Set(array)].filter(Boolean)
+  const createUniqueArray = (array) => [ ...new Set(array)].filter(Boolean)
 
   // Outputs data format required for 'react-timeseries-charts'
   const convertToChartFormat = (label) => ({ label, value: label })
