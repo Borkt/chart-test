@@ -19,8 +19,13 @@ const App = () => {
   // converts it to an array and saves mockData and FilterOptions to local state
   useEffect(() => {
     const setFilterOptions = (data) => {
-      const datasources = data.map(d => d.Datasource);
-      const campaigns = data.map(d => d.Campaign);
+      const datasources = [];
+      const campaigns = [];
+
+      data.forEach(d => {
+        datasources.push(d.Datasource);
+        campaigns.push(d.Campaign);
+      });
 
       const uniqueCampaigns = createUniqueArray(campaigns).map(convertToChartFormat);
       const uniqueDatasources = createUniqueArray(datasources).map(convertToChartFormat);
