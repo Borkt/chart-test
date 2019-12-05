@@ -32,8 +32,8 @@ const App = () => {
     // Standard method for CSV text to JSON conversion in javascript
     // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
     const csvTextToJSON = (csv) => {
-      const lines = csv.split("\n");
-      const headers = lines[0].split(",");
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',');
 
       const result = lines.map((line, i) => {
         if (i === 0) {
@@ -41,7 +41,7 @@ const App = () => {
         }
 
         const obj = {};
-        const currentline = lines[i].split(",");
+        const currentline = lines[i].split(',');
         headers.forEach((header, i) => obj[headers[i]] = currentline[i]);
         return obj;
 
@@ -57,7 +57,7 @@ const App = () => {
         const csvToText = await result.text();
         csvTextToJSON(csvToText);
       } catch (e) {
-        console.log("fetchData error:", e);
+        console.log('fetchData error:', e);
       }
     };
 
@@ -102,7 +102,7 @@ const App = () => {
 
         // Date reformating required for 'react-timeseries-charts'
         // https://stackoverflow.com/a/33299764
-        const dateParts = date.split(".");
+        const dateParts = date.split('.');
         const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
 
         return [dateObject, Clicks, Impressions];
@@ -129,7 +129,7 @@ const App = () => {
   }
 
   return (
-    <div className="App">
+    <div className='App'>
       <Sidebar
         activeCampaignFilters={activeCampaignFilters}
         activeDatasourceFilters={activeDatasourceFilters}

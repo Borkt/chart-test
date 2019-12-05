@@ -14,11 +14,11 @@ export const Sidebar = ({
 }) => {
 
   return (
-    <div className="Sidebar">
-      <h2 className="Sidebar-title">Datasource</h2>
+    <div className='Sidebar'>
+      <h2 className='Sidebar-title'>Datasource</h2>
       <Select
-        className="Sidebar-react-select"
-        classNamePrefix="Sidebar-react-select"
+        className='Sidebar-react-select'
+        classNamePrefix='Sidebar-react-select'
         isSearchable={true}
         isMulti={true}
         value={activeCampaignFilters}
@@ -26,10 +26,10 @@ export const Sidebar = ({
         options={campaignFilterOptions}
       />
 
-      <h2 className="Sidebar-title">Campaign</h2>
+      <h2 className='Sidebar-title'>Campaign</h2>
       <Select
-        className="Sidebar-react-select"
-        classNamePrefix="Sidebar-react-select"
+        className='Sidebar-react-select'
+        classNamePrefix='Sidebar-react-select'
         isSearchable={true}
         isMulti={true}
         value={activeDatasourceFilters}
