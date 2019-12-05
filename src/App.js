@@ -9,16 +9,20 @@ const App = () => {
   const [mockData, setMockData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
-  const [campaignFilterOptions, setCampaignFilterOptions] = useState([]);
-  const [datasourceFilterOptions, setDatasourceFilterOptions] = useState([]);
+  const [filterOptions, setFilterOptions] = useState({
+    campaignFilters: [],
+    datasourceFilters: [],
+  });
 
-  const [activeCampaignFilters, setActiveCampaignFilters] = useState([]);
-  const [activeDatasourceFilters, setActiveDatasourceFilters] = useState([]);
+  const [activeFilterOptions, setActiveFilterOptions] = useState({
+    activeCampaignFilters: [],
+    activeDatasourceFilters: [],
+  });
 
-  // This Effect runs once when the component mounts. It fetches remote CSV data,
-  // converts it to an array and saves mockData and FilterOptions to local state
+  // Runs: Once when App component mounts
+  // Updates: mockData, campaignFilterOptions & datasourceFilterOptions
   useEffect(() => {
-    const setFilterOptions = (data) => {
+    const setMockDataAndFilterOptions = (data) => {
       const datasources = [];
       const campaigns = [];
 
@@ -27,14 +31,13 @@ const App = () => {
         campaigns.push(d.Campaign);
       });
 
-      const uniqueCampaigns = createUniqueArray(campaigns).map(convertToChartFormat);
-      const uniqueDatasources = createUniqueArray(datasources).map(convertToChartFormat);
+      const campaignFilters = createUniqueArray(campaigns).map(convertToChartFormat);
+      const datasourceFilters = createUniqueArray(datasources).map(convertToChartFormat);
 
-      setCampaignFilterOptions(uniqueCampaigns);
-      setDatasourceFilterOptions(uniqueDatasources);
+      setFilterOptions(state => ({ ...state, campaignFilters, datasourceFilters }));
+      setMockData(data);
     }
 
-    // Standard method for CSV text to JSON conversion in javascript
     // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
     const csvTextToJSON = (csv) => {
       const lines = csv.split('\n');
@@ -52,8 +55,7 @@ const App = () => {
 
       }).filter(r => (r !== null) && (r.Date.length > 0));
 
-      setMockData(result);
-      setFilterOptions(result);
+      setMockDataAndFilterOptions(result);
     }
 
     const fetchData = async () => {
@@ -69,17 +71,19 @@ const App = () => {
     fetchData();
   }, []);
 
-  // This Effect runs when mockData, activeDatasourceFilters or activeCampaignFilters
-  // are updated. It is kept separate from the 'onMount' Effect above
+
+  // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
+  // Updates: filteredData
   useEffect(() => {
     // Loop through data and get a SUM of Clicks & Impressions
-    // *Collected and Ordered by Common Date*
-    // Returns an array of arrays with format required by
-    // 'react-timeseries-charts' TimeSeries class
-    const filterDataAndAggregateByDate = (data = mockData) => {
+    // **Collected and Ordered by Common Date**
+    // Returns an array of arrays formated for 'react-timeseries-charts'
+    const filterDataAndAggregateByDate = (data) => {
       if (data.length === 0) {
         return;
       }
+
+      const { activeDatasourceFilters,  activeCampaignFilters } = activeFilterOptions;
 
       // Filter the data by active Datasource and Campaign
       // The next lines produce an 'AND' effect. For simplicity I did not
@@ -97,13 +101,13 @@ const App = () => {
       const dateArray = data.map(d => d.Date);
       const uniqueDates = createUniqueArray(dateArray);
 
-      // Aggregate the data by common Date and return in necessary format
+      // Aggregate data by common Date and return in necessary format
       const filteredMetrics = uniqueDates.map(date => {
-        const singleDayMetrics = data.filter(d => d.Date === date);
+        const dateAggregatedMetrics = data.filter(d => d.Date === date);
 
         // The '+' operator is a quick way to convert string -> number
-        const Clicks = singleDayMetrics.reduce((a, b) => a + +b.Clicks, 0);
-        const Impressions = singleDayMetrics.reduce((a, b) => a + +b.Impressions, 0);
+        const Clicks = dateAggregatedMetrics.reduce((a, b) => a + +b.Clicks, 0);
+        const Impressions = dateAggregatedMetrics.reduce((a, b) => a + +b.Impressions, 0);
 
         // Date reformating required for 'react-timeseries-charts'
         // https://stackoverflow.com/a/33299764
@@ -111,13 +115,13 @@ const App = () => {
         const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
 
         return [dateObject, Clicks, Impressions];
-      }) // Potentially add sort by Date here if needed
+      });
 
       setFilteredData(filteredMetrics);
     }
 
-    filterDataAndAggregateByDate();
-  }, [mockData, activeDatasourceFilters, activeCampaignFilters])
+    filterDataAndAggregateByDate(mockData);
+  }, [mockData, activeFilterOptions])
 
   // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
   const createUniqueArray = (array) => [ ...new Set(array)].filter(Boolean)
@@ -125,27 +129,19 @@ const App = () => {
   // Outputs data format required for 'react-timeseries-charts'
   const convertToChartFormat = (label) => ({ label, value: label })
 
-  const setCampaignFilter = (filter) => {
-    setActiveCampaignFilters(filter || []);
-  }
-
-  const setDatasourceFilter = (filter) => {
-    setActiveDatasourceFilters(filter || []);
+  const setActiveFilter = (e, filterType) => {
+    setActiveFilterOptions(state => ({ ...state, [filterType]: e || [] }));
   }
 
   return (
     <div className='App'>
       <Sidebar
-        activeCampaignFilters={activeCampaignFilters}
-        activeDatasourceFilters={activeDatasourceFilters}
-        campaignFilterOptions={campaignFilterOptions}
-        datasourceFilterOptions={datasourceFilterOptions}
-        setCampaignFilter={setCampaignFilter}
-        setDatasourceFilter={setDatasourceFilter}
+        activeFilterOptions={activeFilterOptions}
+        filterOptions={filterOptions}
+        setActiveFilter={setActiveFilter}
       />
       <ChartView
-        activeCampaignFilters={activeCampaignFilters}
-        activeDatasourceFilters={activeDatasourceFilters}
+        activeFilterOptions={activeFilterOptions}
         data={filteredData} />
     </div>
   );

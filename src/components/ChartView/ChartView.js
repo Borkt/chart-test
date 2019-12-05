@@ -14,34 +14,44 @@ import {
 import './ChartView.css';
 
 export const ChartView = ({
-  activeCampaignFilters,
-  activeDatasourceFilters,
+  activeFilterOptions,
   data,
 }) => {
-  const [chartTitle, setChartTitle] = useState([]);
 
+  const { activeCampaignFilters, activeDatasourceFilters } = activeFilterOptions;
+
+  const [campaignTitle, setCampaignTitle] = useState('');
+  const [datasourceTitle, setDatasourceTitle] = useState('');
+
+  // Runs: when activeCampaignFilters changes
+  // Updates: campaignTitle
   useEffect(() => {
-    const generateChartTitle = () => {
-      let campaignTitle = ' and Metrics: ';
-      let datasourceTitle = 'Datasource: '
-
+    const generateCampaignTitle = () => {
       if (activeCampaignFilters.length > 0) {
-        campaignTitle += activeCampaignFilters.map(f => f.value).join(', ');
+        const datasources = ' and Metrics: ' + activeCampaignFilters.map(f => f.value).join(', ');
+        setCampaignTitle(datasources);
       } else {
-        campaignTitle += 'All Campaigns';
+        setCampaignTitle(' and Metrics: All Campaigns');
       }
-
-      if (activeDatasourceFilters.length > 0) {
-        datasourceTitle += activeDatasourceFilters.map(f => f.value).join(', ') + ' ';
-      } else {
-        datasourceTitle += 'All ';
-      }
-
-      setChartTitle(datasourceTitle + campaignTitle);
     }
 
-    generateChartTitle();
-  }, [activeCampaignFilters, activeDatasourceFilters]);
+    generateCampaignTitle();
+  }, [activeCampaignFilters]);
+
+  // Runs: when activeDatasourceFilters changes
+  // Updates: datasourceTitle
+  useEffect(() => {
+    const generateDatasourceTitle = () => {
+      if (activeDatasourceFilters.length > 0) {
+        const datasources = 'Datasource: ' + activeDatasourceFilters.map(f => f.value).join(', ');
+        setDatasourceTitle(datasources);
+      } else {
+        setDatasourceTitle('Datasource: All');
+      }
+    }
+
+    generateDatasourceTitle();
+  }, [activeDatasourceFilters]);
 
 
   if (data.length === 0) {
@@ -69,7 +79,7 @@ export const ChartView = ({
     <div className='ChartView'>
       <ChartContainer
         timeRange={series.range()}
-        title={chartTitle}
+        title={datasourceTitle + campaignTitle}
         titleStyle={{ fill: '#555', fontWeight: 500, fontSize: '24px' }}
         width={900}
       >
@@ -121,7 +131,6 @@ export const ChartView = ({
 }
 
 ChartView.propTypes = {
-  activeCampaignFilters: PropTypes.array.isRequired,
-  activeDatasourceFilters: PropTypes.array.isRequired,
+  activeFilterOptions: PropTypes.objectOf(PropTypes.array),
   data: PropTypes.array.isRequired,
 };

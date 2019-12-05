@@ -5,13 +5,13 @@ import Select from 'react-select';
 import './Sidebar.css';
 
 export const Sidebar = ({
-  activeCampaignFilters,
-  activeDatasourceFilters,
-  campaignFilterOptions,
-  datasourceFilterOptions,
-  setCampaignFilter,
-  setDatasourceFilter,
+  activeFilterOptions,
+  filterOptions,
+  setActiveFilter,
 }) => {
+
+  const { campaignFilters, datasourceFilters } = filterOptions;
+  const { activeCampaignFilters, activeDatasourceFilters } = activeFilterOptions;
 
   return (
     <div className='Sidebar'>
@@ -21,9 +21,9 @@ export const Sidebar = ({
         classNamePrefix='Sidebar-react-select'
         isSearchable={true}
         isMulti={true}
-        value={activeCampaignFilters}
-        onChange={setCampaignFilter}
-        options={campaignFilterOptions}
+        value={activeDatasourceFilters}
+        onChange={e => setActiveFilter(e, 'activeDatasourceFilters')}
+        options={datasourceFilters}
       />
 
       <h2 className='Sidebar-title'>Campaign</h2>
@@ -32,19 +32,16 @@ export const Sidebar = ({
         classNamePrefix='Sidebar-react-select'
         isSearchable={true}
         isMulti={true}
-        value={activeDatasourceFilters}
-        onChange={setDatasourceFilter}
-        options={datasourceFilterOptions}
+        value={activeCampaignFilters}
+        onChange={e => setActiveFilter(e, 'activeCampaignFilters')}
+        options={campaignFilters}
       />
     </div>
   );
 }
 
 Sidebar.propTypes = {
-  activeCampaignFilters: PropTypes.array.isRequired,
-  activeDatasourceFilters: PropTypes.array.isRequired,
-  campaignFilterOptions: PropTypes.array.isRequired,
-  datasourceFilterOptions: PropTypes.array.isRequired,
-  setCampaignFilter: PropTypes.func.isRequired,
-  setDatasourceFilter: PropTypes.func.isRequired,
+  activeFilterOptions: PropTypes.objectOf(PropTypes.array),
+  filterOptions: PropTypes.objectOf(PropTypes.array),
+  setActiveFilter: PropTypes.func.isRequired,
 };
