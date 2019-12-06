@@ -20,8 +20,8 @@ export const ChartView = ({
 
   const { activeCampaignFilters, activeDatasourceFilters } = activeFilterOptions;
 
-  const [campaignTitle, setCampaignTitle] = useState('');
-  const [datasourceTitle, setDatasourceTitle] = useState('');
+  const [campaignTitle, setCampaignTitle] = useState(' and Metrics: All Campaigns');
+  const [datasourceTitle, setDatasourceTitle] = useState('Datasource: All');
 
   // Runs: when activeCampaignFilters changes
   // Updates: campaignTitle
