@@ -71,23 +71,14 @@ const App = () => {
     fetchData();
   }, []);
 
-
   // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
   // Updates: filteredData
   useEffect(() => {
-    // Loop through data and get a SUM of Clicks & Impressions
-    // **Collected and Ordered by Common Date**
-    // Returns an array of arrays formated for 'react-timeseries-charts'
-    const filterDataAndAggregateByDate = (data) => {
-      if (data.length === 0) {
-        return;
-      }
 
-      const { activeDatasourceFilters,  activeCampaignFilters } = activeFilterOptions;
-
+    const preFilterData = (data) => {
       // Filter the data by active Datasource and Campaign
-      // The next lines produce an 'AND' effect. For simplicity I did not
-      // include more complex 'AND / OR' logic
+      // The next lines produce an 'AND' effect.
+      const { activeDatasourceFilters,  activeCampaignFilters } = activeFilterOptions;
       if (activeDatasourceFilters.length > 0) {
         const dataFilters = activeDatasourceFilters.map(f => f.value);
         data = data.filter(d => dataFilters.includes(d.Datasource));
@@ -98,12 +89,25 @@ const App = () => {
         data = data.filter(d => campaignFilters.includes(d.Campaign));
       }
 
-      const dateArray = data.map(d => d.Date);
+      return data;
+    }
+
+    // Loop through data and get a SUM of Clicks & Impressions
+    // **Collected and Ordered by Common Date**
+    // Returns an array of arrays formated for 'react-timeseries-charts'
+    const filterDataAndAggregateByDate = (data) => {
+      if (data.length === 0) {
+        return;
+      }
+
+      const filteredData = preFilterData(data);
+
+      const dateArray = filteredData.map(d => d.Date);
       const uniqueDates = createUniqueArray(dateArray);
 
       // Aggregate data by common Date and return in necessary format
       const filteredMetrics = uniqueDates.map(date => {
-        const dateAggregatedMetrics = data.filter(d => d.Date === date);
+        const dateAggregatedMetrics = filteredData.filter(d => d.Date === date);
 
         // The '+' operator is a quick way to convert string -> number
         const Clicks = dateAggregatedMetrics.reduce((a, b) => a + +b.Clicks, 0);
@@ -129,8 +133,8 @@ const App = () => {
   // Outputs data format required for 'react-timeseries-charts'
   const convertToChartFormat = (label) => ({ label, value: label })
 
-  const setActiveFilter = (e, filterType) => {
-    setActiveFilterOptions(state => ({ ...state, [filterType]: e || [] }));
+  const setActiveFilter = (filter, filterType) => {
+    setActiveFilterOptions({ ...activeFilterOptions, [filterType]: filter || [] });
   }
 
   return (
