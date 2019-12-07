@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react-hooks";
 import "whatwg-fetch";
 import { fakeServer } from 'sinon';
 
-import { useFetchApi } from "./useDataApi";
+import { useFetchApi } from "./useFetchApi";
 
 // Setup fake server. Hold a reference to the server to tell it
 // when/what to respond to requests (and clean it up later)

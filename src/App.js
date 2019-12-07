@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useFetchApi } from './useDataApi';
+import { useFetchApi } from './useFetchApi';
 
 import { ChartView, Sidebar } from './components';
 
@@ -8,6 +8,7 @@ import './App.css';
 const url = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
 
 const App = () => {
+
   const [mockData, setMockData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
@@ -30,15 +31,15 @@ const App = () => {
   const { response, error } = useFetchApi({ url, csvFetch: true });
 
   if (error) {
-    console.log("fetch error", error);
+    console.log("API fetch error", error);
   }
 
+  // Runs: when response changes
+  // Updates: mockData and filterOptions
   useEffect(() => {
     if (!response) {
       return;
     }
-
-    setMockData(response);
 
     const datasources = [];
     const campaigns = [];
@@ -51,13 +52,14 @@ const App = () => {
     const campaignFilters = createUniqueArray(campaigns).map(convertToChartFormat);
     const datasourceFilters = createUniqueArray(datasources).map(convertToChartFormat);
 
+    // useReducer() might be an improvement here
+    setMockData(response);
     setFilterOptions(state => ({ ...state, campaignFilters, datasourceFilters }));
   }, [response]);
 
   // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
   // Updates: filteredData
   useEffect(() => {
-
     const preFilterData = (data) => {
       // Filter the data by active Datasource and Campaign
       // The next lines produce an 'AND' effect.
@@ -75,7 +77,7 @@ const App = () => {
       return data;
     }
 
-    // Loop through data and get a SUM of Clicks & Impressions
+    // Loop through data & get a SUM of Clicks & Impressions
     // **Collected and Ordered by Common Date**
     // Returns an array of arrays formated for 'react-timeseries-charts'
     const filterDataAndAggregateByDate = (data) => {
