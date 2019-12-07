@@ -13,12 +13,18 @@ const defaultProps =  {
 
 afterEach(cleanup);
 
-it('Sidebar renders Datasource text', () => {
-  const { getByText } = render(<Sidebar { ...defaultProps } />);
-  expect(getByText('Datasource')).toBeInTheDocument();
-});
+// Internal Dropdown functionality is not tested because
+// that is handled internally by the 'react-select' package
 
-it('Sidebar renders Campaign text', () => {
-  const { getByText } = render(<Sidebar { ...defaultProps } />);
-  expect(getByText('Campaign')).toBeInTheDocument();
+describe('Sidebar', () => {
+  it('matches previous Snapshot', () => {
+    const { asFragment } = render(<Sidebar { ...defaultProps } />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('renders Campaign & Datasource text', () => {
+    const { getByText } = render(<Sidebar { ...defaultProps } />);
+    expect(getByText('Datasource')).toBeInTheDocument();
+    expect(getByText('Campaign')).toBeInTheDocument();
+  });
 });
