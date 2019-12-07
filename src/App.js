@@ -60,6 +60,8 @@ const App = () => {
   // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
   // Updates: filteredData
   useEffect(() => {
+
+    // Potential optimization -> implement useMemo()
     const preFilterData = (data) => {
       // Filter the data by active Datasource and Campaign
       // The next lines produce an 'AND' effect.
@@ -86,11 +88,11 @@ const App = () => {
       }
 
       const filteredData = preFilterData(data);
-
       const dateArray = filteredData.map(d => d.Date);
       const uniqueDates = createUniqueArray(dateArray);
 
       // Aggregate data by common Date and return required Chart format
+      // Potential optimization -> implement useMemo()
       const filteredMetrics = uniqueDates.map(date => {
         const dateAggregatedMetrics = filteredData.filter(d => d.Date === date);
 
