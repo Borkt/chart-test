@@ -27,22 +27,34 @@ describe("useFetchApi", () => {
   });
 
   it('GETs data from the server', async () => {
-    const expectedData = { zest: "data" };
+    const expectedData = { data: "data" };
 
     server.respondWith('GET', url, [200, {}, JSON.stringify(expectedData)]);
 
     const { result, waitForNextUpdate } = renderHook(() => useFetchApi({url}));
 
     expect(result.current.response).toBeNull();
+    expect(result.current.error).toBeNull();
 
     server.respond();
-
-    expect(result.current.isLoading).toBe(true);
-
     await waitForNextUpdate();
 
     expect(result.current.response).toEqual(expectedData);
     expect(result.current.error).toBeNull();
+  });
+
+  it('sets isLoading boolean dynamically', async () => {
+    const expectedData = { data: "data" };
+
+    server.respondWith('GET', url, [200, {}, JSON.stringify(expectedData)]);
+
+    const { result, waitForNextUpdate } = renderHook(() => useFetchApi({url}));
+
+    expect(result.current.isLoading).toBe(true);
+
+    server.respond();
+    await waitForNextUpdate();
+
     expect(result.current.isLoading).toBe(false);
   });
 
@@ -55,13 +67,9 @@ describe("useFetchApi", () => {
     expect(result.current.error).toBeNull();
 
     server.respond();
-
-    expect(result.current.isLoading).toBe(true);
-
     await waitForNextUpdate();
 
     expect(result.current.response).toBeNull();
     expect(result.current.error).toBeTruthy();
-    expect(result.current.isLoading).toBe(false);
   });
 });
