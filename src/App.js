@@ -33,6 +33,7 @@ const App = () => {
   if (error) {
     console.log("API fetch error", error);
   }
+  
 
   // Runs: when response changes
   // Updates: mockData and filterOptions
@@ -57,10 +58,10 @@ const App = () => {
     setFilterOptions(state => ({ ...state, campaignFilters, datasourceFilters }));
   }, [response]);
 
+
   // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
   // Updates: filteredData
   useEffect(() => {
-
     // Potential optimization -> implement useMemo()
     const preFilterData = (data) => {
       // Filter the data by active Datasource and Campaign
