@@ -20,22 +20,33 @@ export const useFetchApi = ({url, csvFetch}) => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   useEffect(() => {
+    const abortController = new AbortController(); // Allows fetch to be cancelled
+
     const fetchData = async () => {
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: abortController.signal });
+        let response = null;
+
         if (csvFetch) {
           const text = await res.text();
-          const csvToText = await csvTextToJSON(text);
-          setResponse(csvToText);
+          response = await csvTextToJSON(text);
         } else {
-          const json = await res.json();
-          setResponse(json);
+          response = await res.json();
         }
-      } catch (error) {
-        setError(error);
+
+        setResponse(response);
+      } catch (e) {
+        if (!abortController.signal.aborted) {
+          setError(e);
+        }
       }
     };
     fetchData();
+
+    return () => {
+      abortController.abort(); // Cancels fetch if still running on unmount
+    };
   }, [csvFetch, url]);
+
   return { response, error };
 };
