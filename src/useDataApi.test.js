@@ -26,50 +26,42 @@ describe("useFetchApi", () => {
     expect(result.current.error).toBeNull();
   });
 
-  // note, this is an `async` test
   it('GETs data from the server', async () => {
-    const expectedData = { zest: "data" }; // Define mocked data
+    const expectedData = { zest: "data" };
 
-    // setup the server
     server.respondWith('GET', url, [200, {}, JSON.stringify(expectedData)]);
 
-    // setup our hook
     const { result, waitForNextUpdate } = renderHook(() => useFetchApi({url}));
 
-    // just to make sure our data is still `null` at this point
     expect(result.current.response).toBeNull();
 
-    // tell our server it's time to respond!
     server.respond();
 
-    // magic! we will wait until our hook finishes updating its internal states;
+    expect(result.current.isLoading).toBe(true);
+
     await waitForNextUpdate();
 
-    // assert the outcomes!
     expect(result.current.response).toEqual(expectedData);
     expect(result.current.error).toBeNull();
+    expect(result.current.isLoading).toBe(false);
   });
 
-  // note, this is an `async` test
   it('Responds with an appropriate error', async () => {
-    // setup the server
     server.respondWith('GET', url, [400, {}, '']);
 
-    // setup our hook
     const { result, waitForNextUpdate } = renderHook(() => useFetchApi({url}));
 
-    // just to make sure our data is still `null` at this point
     expect(result.current.response).toBeNull();
     expect(result.current.error).toBeNull();
 
-    // tell our server it's time to respond!
     server.respond();
 
-    // magic! we will wait until our hook finishes updating its internal states;
+    expect(result.current.isLoading).toBe(true);
+
     await waitForNextUpdate();
 
-    // assert the outcomes!
     expect(result.current.response).toBeNull();
     expect(result.current.error).toBeTruthy();
+    expect(result.current.isLoading).toBe(false);
   });
 });

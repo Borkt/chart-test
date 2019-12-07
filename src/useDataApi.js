@@ -19,11 +19,14 @@ const csvTextToJSON = (csv) => {
 export const useFetchApi = ({url, csvFetch}) => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const abortController = new AbortController(); // Allows fetch to be cancelled
 
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const res = await fetch(url, { signal: abortController.signal });
         let response = null;
 
@@ -35,9 +38,11 @@ export const useFetchApi = ({url, csvFetch}) => {
         }
 
         setResponse(response);
+        setIsLoading(false);
       } catch (e) {
         if (!abortController.signal.aborted) {
           setError(e);
+          setIsLoading(false);
         }
       }
     };
@@ -48,5 +53,5 @@ export const useFetchApi = ({url, csvFetch}) => {
     };
   }, [csvFetch, url]);
 
-  return { response, error };
+  return { isLoading, response, error };
 };
