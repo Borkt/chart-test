@@ -13,10 +13,7 @@ import {
 
 import './ChartView.css';
 
-export const ChartView = ({
-  activeFilterOptions,
-  data,
-}) => {
+export const ChartView = ({ activeFilterOptions, data }) => {
 
   const { activeCampaignFilters, activeDatasourceFilters } = activeFilterOptions;
 

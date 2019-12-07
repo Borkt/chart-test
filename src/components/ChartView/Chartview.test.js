@@ -12,30 +12,31 @@ const defaultInitialProps =  {
   data: [],
 };
 
-const propsWithMockedDataNoFilters = {
+const propsWithMockedData = {
   activeFilterOptions: mockData.activeFilterOptions,
   data: mockData.data,
 };
 
 afterEach(cleanup);
 
-it('ChartView renders Chart initial text', () => {
-  const { getByText } = render(<ChartView { ...defaultInitialProps } />);
-  expect(getByText('Data Loading or Unavailable...')).toBeInTheDocument();
-});
+// Internal Chart functionality is not tested because that is
+// handled internally by the 'react-timeseries-charts' package
 
-it('ChartView renders Chart onload text', async () => {
-  await act(async () => {
-    const { getByText } = render(<ChartView { ...propsWithMockedDataNoFilters } />);
-    getByText('Datasource: All and Metrics: All Campaigns');
-  })
-});
+describe('ChartView', () => {
+  it('matches previous Snapshot', () => {
+    const { asFragment } = render(<ChartView { ...defaultInitialProps } />);
+    expect(asFragment()).toMatchSnapshot();
+  });
 
-it('ChartView renders Chart two filters selected', async () => {
-  
+  it('renders Chart initial text', () => {
+    const { getByText } = render(<ChartView { ...defaultInitialProps } />);
+    expect(getByText('Data Loading or Unavailable...')).toBeInTheDocument();
+  });
 
-  await act(async () => {
-    const { getByText } = render(<ChartView { ...propsWithMockedDataNoFilters } />);
-    getByText('Datasource: All and Metrics: All Campaigns');
-  })
+  it('renders Chart onload text', async () => {
+    await act(async () => {
+      const { getByText } = render(<ChartView { ...propsWithMockedData } />);
+      expect(getByText('Datasource: All and Metrics: All Campaigns')).toBeInTheDocument();
+    })
+  });
 });
