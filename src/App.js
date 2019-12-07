@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useFetchApi } from './useDataApi';
+
 import { ChartView, Sidebar } from './components';
 
 import './App.css';
 
-const csvURL = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
+const url = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
 
 const App = () => {
   const [mockData, setMockData] = useState([]);
@@ -19,57 +21,38 @@ const App = () => {
     activeDatasourceFilters: [],
   });
 
-  // Runs: Once when App component mounts
-  // Updates: mockData, campaignFilterOptions & datasourceFilterOptions
+  // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
+  const createUniqueArray = (array) => [ ...new Set(array)].filter(Boolean);
+
+  // Outputs data format required for 'react-timeseries-charts'
+  const convertToChartFormat = (label) => ({ label, value: label });
+
+  const { response, error } = useFetchApi({ url, csvFetch: true });
+
+  if (error) {
+    console.log("fetch error", error);
+  }
+
   useEffect(() => {
-    const setMockDataAndFilterOptions = (data) => {
-      const datasources = [];
-      const campaigns = [];
-
-      data.forEach(d => {
-        datasources.push(d.Datasource);
-        campaigns.push(d.Campaign);
-      });
-
-      const campaignFilters = createUniqueArray(campaigns).map(convertToChartFormat);
-      const datasourceFilters = createUniqueArray(datasources).map(convertToChartFormat);
-
-      setFilterOptions(state => ({ ...state, campaignFilters, datasourceFilters }));
-      setMockData(data);
+    if (!response) {
+      return;
     }
 
-    // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
-    const csvTextToJSON = (csv) => {
-      const lines = csv.split('\n');
-      const headers = lines[0].split(',');
+    setMockData(response);
 
-      const result = lines.map((line, i) => {
-        if (i === 0) {
-          return null;
-        }
+    const datasources = [];
+    const campaigns = [];
 
-        const obj = {};
-        const currentline = lines[i].split(',');
-        headers.forEach((header, i) => obj[headers[i]] = currentline[i]);
-        return obj;
+    response.forEach(d => {
+      datasources.push(d.Datasource);
+      campaigns.push(d.Campaign);
+    });
 
-      }).filter(r => (r !== null) && (r.Date.length > 0));
+    const campaignFilters = createUniqueArray(campaigns).map(convertToChartFormat);
+    const datasourceFilters = createUniqueArray(datasources).map(convertToChartFormat);
 
-      setMockDataAndFilterOptions(result);
-    }
-
-    const fetchData = async () => {
-      try {
-        const result = await fetch(csvURL);
-        const csvToText = await result.text();
-        csvTextToJSON(csvToText);
-      } catch (e) {
-        console.log('fetchData error:', e);
-      }
-    };
-
-    fetchData();
-  }, []);
+    setFilterOptions(state => ({ ...state, campaignFilters, datasourceFilters }));
+  }, [response]);
 
   // Runs: when mockData, activeDatasourceFilters, or activeCampaignFilters changes
   // Updates: filteredData
@@ -105,7 +88,7 @@ const App = () => {
       const dateArray = filteredData.map(d => d.Date);
       const uniqueDates = createUniqueArray(dateArray);
 
-      // Aggregate data by common Date and return in necessary format
+      // Aggregate data by common Date and return required Chart format
       const filteredMetrics = uniqueDates.map(date => {
         const dateAggregatedMetrics = filteredData.filter(d => d.Date === date);
 
@@ -125,13 +108,7 @@ const App = () => {
     }
 
     filterDataAndAggregateByDate(mockData);
-  }, [mockData, activeFilterOptions])
-
-  // Creates arrays with unique values and filters out (null, undefined, 0, false, '')
-  const createUniqueArray = (array) => [ ...new Set(array)].filter(Boolean)
-
-  // Outputs data format required for 'react-timeseries-charts'
-  const convertToChartFormat = (label) => ({ label, value: label })
+  }, [mockData, activeFilterOptions]);
 
   const setActiveFilter = (filter, filterType) => {
     setActiveFilterOptions({ ...activeFilterOptions, [filterType]: filter || [] });
