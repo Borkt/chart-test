@@ -1,8 +1,8 @@
 import React from 'react';
-import { act, cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { ChartView } from './ChartView';
 
-import { mockData } from '../../mock-data/mockData';
+// import { mockData } from '../../mock-data/mockData';
 
 const defaultInitialProps =  {
   activeFilterOptions: {
@@ -12,10 +12,10 @@ const defaultInitialProps =  {
   data: [],
 };
 
-const propsWithMockedData = {
-  activeFilterOptions: mockData.activeFilterOptions,
-  data: mockData.data,
-};
+// const propsWithMockedData = {
+//   activeFilterOptions: mockData.activeFilterOptions,
+//   data: mockData.data,
+// };
 
 afterEach(cleanup);
 
@@ -33,10 +33,10 @@ describe('ChartView', () => {
     expect(getByText('Data Loading or Unavailable...')).toBeInTheDocument();
   });
 
-  it('renders Chart onload text', async () => {
-    await act(async () => {
-      const { getByText } = render(<ChartView { ...propsWithMockedData } />);
-      expect(getByText('Datasource: All and Metrics: All Campaigns')).toBeInTheDocument();
-    })
-  });
+  // it('renders Chart onload text', async () => {
+  //   await act(async () => {
+  //     const { getByText } = render(<ChartView { ...propsWithMockedData } />);
+  //     expect(getByText('Datasource: All and Metrics: All Campaigns')).toBeInTheDocument();
+  //   })
+  // });
 });
