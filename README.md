@@ -19,7 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 - Adding custom filtering / aggregation hook made this business logic testable, however this extraction came with a noticeable impact on filtering & redraw performance. Keeping this functionality inside of App.js and simply using setState() results in much quicker sorting / redrawing
 - `useAggregateData()` custom hook was also split into two separate custom hooks, one for filtering and one for aggregating - thereby improving code readability. However, the additional performance impact as a result of this refactoring was such that I reverted to just one external custom hook to handle all filtering and aggregating. The prefilter-specific hook (now discarded) looked like this:
 
-```
+```javascript
 import { useEffect, useState } from 'react';
 
 // Main Business logic here. Filtering & Aggregating data real-time on Client
@@ -55,11 +55,10 @@ export const useDataPrefilter = (mockData, activeDatasourceFilters, activeCampai
 
   return { preFilteredData };
 }
-
 ```
 
 ## Further Improvements
 
-- Implement `useMemo()`` and / or `useCallback()` to handle intensive calculations and reduce unnecessary re-rendering
+- Implement `useMemo()` and / or `useCallback()` to handle intensive calculations and reduce unnecessary re-rendering
 - Lodash was not used because it seems ES6 functional techniques were sufficient
 - Implementing Web Workers might make the local in-client filtering faster
