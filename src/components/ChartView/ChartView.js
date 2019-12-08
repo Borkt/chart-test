@@ -14,9 +14,6 @@ import {
 import './ChartView.css';
 
 export const ChartView = ({ activeFilterOptions, data }) => {
-
-  const { activeCampaignFilters, activeDatasourceFilters } = activeFilterOptions;
-
   const [campaignTitle, setCampaignTitle] = useState(' and Metrics: All Campaigns');
   const [datasourceTitle, setDatasourceTitle] = useState('Datasource: All');
 
@@ -24,8 +21,8 @@ export const ChartView = ({ activeFilterOptions, data }) => {
   // Updates: campaignTitle
   useEffect(() => {
     const generateCampaignTitle = () => {
-      if (activeCampaignFilters.length > 0) {
-        const datasources = ' and Metrics: ' + activeCampaignFilters.map(f => f.value).join(', ');
+      if (activeFilterOptions.activeCampaignFilters.length > 0) {
+        const datasources = ' and Metrics: ' + activeFilterOptions.activeCampaignFilters.map(f => f.value).join(', ');
         setCampaignTitle(datasources);
       } else {
         setCampaignTitle(' and Metrics: All Campaigns');
@@ -33,14 +30,14 @@ export const ChartView = ({ activeFilterOptions, data }) => {
     }
 
     generateCampaignTitle();
-  }, [activeCampaignFilters]);
+  }, [activeFilterOptions.activeCampaignFilters]);
 
   // Runs: when activeDatasourceFilters changes
   // Updates: datasourceTitle
   useEffect(() => {
     const generateDatasourceTitle = () => {
-      if (activeDatasourceFilters.length > 0) {
-        const datasources = 'Datasource: ' + activeDatasourceFilters.map(f => f.value).join(', ');
+      if (activeFilterOptions.activeDatasourceFilters.length > 0) {
+        const datasources = 'Datasource: ' + activeFilterOptions.activeDatasourceFilters.map(f => f.value).join(', ');
         setDatasourceTitle(datasources);
       } else {
         setDatasourceTitle('Datasource: All');
@@ -48,7 +45,7 @@ export const ChartView = ({ activeFilterOptions, data }) => {
     }
 
     generateDatasourceTitle();
-  }, [activeDatasourceFilters]);
+  }, [activeFilterOptions.activeDatasourceFilters]);
 
 
   if (data.length === 0) {
