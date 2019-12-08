@@ -7,6 +7,10 @@ Clone and run project with:
 Runs the app in the development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
+Run rests with:
+
+### `npm run test`
+
 ## General Functionality
 
 - This app represents a pure client-side approach to data processing and presentation
