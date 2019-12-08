@@ -14,14 +14,14 @@ Run rests with:
 ## General Functionality
 
 - This app represents a pure client-side approach to data processing and presentation
-- Prior to extraction of the business logic in App.js to a custom hook (`useAggregateData()`), this web app could sort over 32,000 lines of data AND redraw the corresponding graphs in under 200ms: User experience improves.
-- Another benefit of this approach is that it makes the backend infrastructure much more scalable: After sending the initial data payload, the server is no longer required to handle requests and filtering / aggregating data.
+- Prior to extraction of the business logic in App.js to a custom hook (`useAggregateData()`), this web app could sort over 32,000 lines of data AND redraw the corresponding graphs in under 200ms: Improved User experience
+- Another benefit of the client-side approach is that it makes the existing backend infrastructure much more scalable: After sending the initial data payload, the server is no longer required to handle requests and filtering / aggregating data. Redistributing the computation to Clients means you can handle growth and spikes much easier than with a server-side intensive approach.
 
 ## Notes
 
 - API requests and data handling / mocking are simplified due to the lack of a conventional API endpoint with filtering params
-- Adding custom filtering / aggregation hook made this business logic testable, however this extraction came with a noticeable impact on filtering & redraw performance. Keeping this functionality inside of App.js and simply using setState() results in much quicker sorting / redrawing
-- `useAggregateData()` custom hook was also split into two separate custom hooks, one for filtering and one for aggregating - thereby improving code readability. However, the additional performance impact as a result of this refactoring was such that I reverted to just one external custom hook to handle all filtering and aggregating. The prefilter-specific hook (now discarded) looked like this:
+- Adding custom filtering / aggregation hook made the core business logic testable, however this extraction came with a noticeable impact on filtering & redraw performance. Keeping this functionality inside of App.js and simply using setState() results in much quicker sorting / redrawing.
+- `useAggregateData()` custom hook was temporarily split into two separate custom hooks, one for filtering and one for aggregating - futher improving code readability. However, there was an additional performance impact as a result of this refactoring so I reverted to just one using external custom hook to handle the business logic. The prefilter-specific hook (now discarded) looked like this:
 
 ```javascript
 import { useEffect, useState } from 'react';
@@ -63,6 +63,7 @@ export const useDataPrefilter = (mockData, activeDatasourceFilters, activeCampai
 
 ## Further Improvements
 
-- Implement `useMemo()` and / or `useCallback()` to handle intensive calculations and reduce unnecessary re-rendering
-- Lodash was not used because it seems ES6 functional techniques were sufficient
-- Implementing Web Workers might make the local in-client filtering faster
+- Carefully implement `useMemo()` and / or `useCallback()` to handle intensive calculations and reduce unnecessary re-rendering
+- Lodash was not used because it seems ES6 functional techniques were sufficient. However, mapping and filtering via Lodash might yield performance benefits.
+- Implementing Web Workers might improve filtering / aggregation by offloading computations from the main thread
+- It would be fairly easy to implement localStorage to let users begin viewing / interacting with their data without waiting for a full download
