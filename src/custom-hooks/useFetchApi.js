@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // Adapted from: http://techslides.com/convert-csv-to-json-in-javascript
 const csvTextToJSON = (csv) => {
@@ -48,9 +48,9 @@ export const useFetchApi = ({url, csvFetch}) => {
     };
     fetchData();
 
-    return () => {
-      abortController.abort(); // Cancels fetch if still running on unmount
-    };
+    // Cancels fetch if still running on unmount
+    return () => abortController.abort();
+
   }, [csvFetch, url]);
 
   return { isLoading, response, error };
